@@ -26,6 +26,7 @@ export interface IChessBoard extends Document {
     fen: string;
     timestamp: Date;
   }>;
+  boardOrientation?: 'white' | 'black';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -98,7 +99,12 @@ const chessBoardSchema = new Schema<IChessBoard>({
       type: Date,
       default: Date.now
     }
-  }]
+  }],
+  boardOrientation: {
+    type: String,
+    enum: ['white', 'black'],
+    default: 'white'
+  }
 }, {
   timestamps: true
 });
