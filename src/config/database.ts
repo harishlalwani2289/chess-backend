@@ -10,9 +10,11 @@ const connectDB = async (): Promise<void> => {
     }
 
     console.log('Attempting to connect to MongoDB...');
+    console.log('MongoDB URI being used:', mongoURI.replace(/\/\/([^:]+):([^@]+)@/, '//[USER]:[PASSWORD]@')); // Hide credentials
     const conn = await mongoose.connect(mongoURI);
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`📊 Database name: ${conn.connection.db.databaseName}`);
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error);
     process.exit(1);
