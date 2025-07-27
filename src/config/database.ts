@@ -17,7 +17,7 @@ const connectDB = async (): Promise<void> => {
     const conn = await mongoose.connect(mongoURI);
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    console.log(`📊 Database name: ${conn.connection.db.databaseName}`);
+    console.log(`📊 Database name: ${conn.connection.db?.databaseName || 'undefined'}`);
     console.log(`🔗 Connection string used: ${mongoURI.split('/').pop()?.split('?')[0]}`); // Show only DB name part
   } catch (error) {
     console.error('❌ Error connecting to MongoDB:', error);
