@@ -51,14 +51,19 @@ const corsOptions = {
       process.env.FRONTEND_URL || 'http://localhost:5173',
       'http://localhost:3000',
       'http://localhost:5173',
-      // Temporarily allow all Vercel deployment URLs for testing
-      ...((origin && origin.includes('.vercel.app')) ? [origin] : [])
+      'https://chess-next-move-1ykf.vercel.app',
+      // Allow all Vercel deployment URLs
     ];
     
-    console.log('🌐 CORS check - Origin:', origin);
-    console.log('🌐 CORS check - Allowed origins:', allowedOrigins);
+    // Check if origin is a Vercel app or in allowed origins
+    const isVercelApp = origin && origin.includes('.vercel.app');
+    const isAllowedOrigin = allowedOrigins.includes(origin);
     
-    if (allowedOrigins.includes(origin)) {
+    console.log('🌐 CORS check - Origin:', origin);
+    console.log('🌐 CORS check - Is Vercel app:', isVercelApp);
+    console.log('🌐 CORS check - Is allowed origin:', isAllowedOrigin);
+    
+    if (isAllowedOrigin || isVercelApp) {
       callback(null, true);
     } else {
       console.error('❌ CORS blocked origin:', origin);
@@ -66,6 +71,8 @@ const corsOptions = {
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 
