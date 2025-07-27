@@ -50,12 +50,18 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:5173',
       'http://localhost:3000',
-      'http://localhost:5173'
+      'http://localhost:5173',
+      // Temporarily allow all Vercel deployment URLs for testing
+      ...((origin && origin.includes('.vercel.app')) ? [origin] : [])
     ];
+    
+    console.log('🌐 CORS check - Origin:', origin);
+    console.log('🌐 CORS check - Allowed origins:', allowedOrigins);
     
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error('❌ CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
