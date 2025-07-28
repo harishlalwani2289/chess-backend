@@ -2,13 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import session from 'express-session';
 import dotenv from 'dotenv';
-import connectDB from './config/database';
-import authRoutes from './routes/authRoutes';
-import chessBoardRoutes from './routes/chessBoardRoutes';
 
-// Load environment variables
+// Load environment variables FIRST
 dotenv.config();
+
+import connectDB from './config/database';
+import passport from './config/passport';
+import authRoutes from './routes/authRoutes';
+import oauthRoutes from './routes/oauthRoutes';
+import chessBoardRoutes from './routes/chessBoardRoutes';
 
 // Create Express app
 const app = express();
@@ -78,6 +82,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Session middleware (required for passport)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -94,6 +113,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/oauth', oauthRoutes);
 app.use('/api/chess-boards', chessBoardRoutes);
 
 // 404 handler

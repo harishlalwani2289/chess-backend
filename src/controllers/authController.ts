@@ -1,8 +1,16 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import User from '../models/User';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User, { IUser } from '../models/User';
 import { generateToken } from '../middleware/auth';
 
+// Extend Express Request type to include our User type
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IUser;
+  }
+}
 // Register user
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -135,16 +143,17 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    const user = req.user as IUser;
     res.status(200).json({
       success: true,
       message: 'Profile retrieved successfully',
       data: {
         user: {
-          id: req.user._id,
-          email: req.user.email,
-          name: req.user.name,
-          createdAt: req.user.createdAt,
-          updatedAt: req.user.updatedAt
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
         }
       }
     });
@@ -180,10 +189,11 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     }
 
     const { name } = req.body;
+    const user = req.user as IUser;
 
     // Update user
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
+      user._id,
       { name },
       { new: true, runValidators: true }
     );

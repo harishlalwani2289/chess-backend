@@ -1,11 +1,22 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Interface for OAuth provider data
+export interface IOAuthProvider {
+  id: string;
+  email: string;
+}
+
 // Interface for User document
 export interface IUser extends Document {
   email: string;
-  password: string;
+  password?: string; // Optional for OAuth users
   name: string;
+  avatar?: string;
+  providers: {
+    google?: IOAuthProvider;
+    github?: IOAuthProvider;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -23,7 +34,10 @@ const userSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function(this: IUser) {
+      // Password is required only if no OAuth providers are set
+      return !this.providers?.google && !this.providers?.github;
+    },
     minlength: [6, 'Password must be at least 6 characters long']
   },
   name: {
@@ -32,6 +46,20 @@ const userSchema = new Schema<IUser>({
     trim: true,
     minlength: [2, 'Name must be at least 2 characters long'],
     maxlength: [50, 'Name cannot exceed 50 characters']
+  },
+  avatar: {
+    type: String,
+    required: false
+  },
+  providers: {
+    google: {
+      id: { type: String },
+      email: { type: String }
+    },
+    github: {
+      id: { type: String },
+      email: { type: String }
+    }
   }
 }, {
   timestamps: true
@@ -39,7 +67,7 @@ const userSchema = new Schema<IUser>({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   
   try {
     const salt = await bcrypt.genSalt(12);
@@ -52,6 +80,7 @@ userSchema.pre('save', async function(next) {
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  if (!this.password) return false; // OAuth users don't have passwords
   return bcrypt.compare(candidatePassword, this.password);
 };
 

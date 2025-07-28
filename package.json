@@ -18,15 +18,23 @@
   "license": "ISC",
   "description": "Backend API for Chess Game with User Authentication",
   "dependencies": {
+    "@types/express-session": "^1.18.2",
+    "@types/passport": "^1.0.17",
+    "@types/passport-github2": "^1.2.9",
+    "@types/passport-google-oauth20": "^2.0.16",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.19.2",
     "express-rate-limit": "^8.0.1",
+    "express-session": "^1.18.2",
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.5"
+    "mongoose": "^8.16.5",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
